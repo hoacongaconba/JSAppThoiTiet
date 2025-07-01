@@ -30,10 +30,128 @@ searchInput.addEventListener('change', (e) => {
         });
 });
 
+// Tro ly ao
+var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
 
-const toggleBtn = document.querySelector('.toggle-dark');
+const recognition = new SpeechRecognition();
+const synth = window.speechSynthesis;
+recognition.lang = 'vi-VI';
+recognition.continuous = false;
 
-toggleBtn.addEventListener('click', () => {
-    document.body.classList.toggle('dark');
-    toggleBtn.innerHTML = document.body.classList.contains('dark') ? 'Light Mode' : 'Dark Mode';
+const microphone = document.querySelector('.microphone');
+
+const speak = (text) => {
+    if (synth.speaking) {
+        console.error('Busy. Speaking...');
+        return;
+    }
+
+    const utter = new SpeechSynthesisUtterance(text);//
+
+    utter.onend = () => {
+        console.log('SpeechSynthesisUtterance.onend');
+    }
+    utter.onerror = (err) => {
+        console.error('SpeechSynthesisUtterance.onerror', err);
+    }
+
+    synth.speak(utter);
+};
+
+const handleVoice = (text) => {
+    console.log('text', text);
+
+    // "thời tiết tại Đà Nẵng" => ["thời tiết tại", "Đà Nẵng"]
+    const handledText = text.toLowerCase();
+    if (handledText.includes('thời tiết tại')) {
+        const location = handledText.split('tại')[1].trim();
+
+        console.log('location', location);
+        searchInput.value = location;
+        const changeEvent = new Event('change');
+        searchInput.dispatchEvent(changeEvent);
+        return;
+    }
+    
+    const container = document.querySelector('.container');
+    if (handledText.includes('thay đổi màu nền')) {
+        const color = handledText.split('màu nền')[1].trim();
+        container.style.background = color;
+        return;
+    }
+
+    if (handledText.includes('màu nền mặc định')) {
+        container.style.background = '';
+        return;
+    }
+
+    if (handledText.includes('mấy giờ')) {
+        const textToSpeech = `${moment().hours()} hours ${moment().minutes()} minutes`;
+        speak(textToSpeech);
+        return;
+    }
+
+    speak('Nói tiếng người đi');
+}
+
+microphone.addEventListener('click', (e) => {
+    e.preventDefault();// Ngăn chặn hành động mặc định của nút
+
+    recognition.start();// Bắt đầu nhận diện giọng nói
+    microphone.classList.add('recording');
+});
+
+recognition.onspeechend = () => {
+    recognition.stop();
+    microphone.classList.remove('recording');
+}
+
+recognition.onerror = (err) => {
+    console.error(err);
+    microphone.classList.remove('recording');
+}
+
+recognition.onresult = (e) => {
+    console.log('onresult', e);
+    const text = e.results[0][0].transcript;
+    handleVoice(text);
+}
+
+
+
+
+
+// const toggleBtn = document.querySelector('.toggle-dark');
+
+// toggleBtn.addEventListener('click', () => {
+//     document.body.classList.toggle('dark');
+//     toggleBtn.innerHTML = document.body.classList.contains('dark') ? 'Light Mode' : 'Dark Mode';
+//     localStorage.setItem('theme', isDark ? 'dark' : 'light');
+// });
+
+
+// // Áp dụng khi tải lại trang
+// if (localStorage.getItem('theme') === 'dark') {
+//     document.body.classList.add('dark');
+//     toggleBtn.innerHTML = 'Light Mode';
+// }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleBtn = document.querySelector('.toggle-dark');
+
+    // Gán theme khi tải lại trang
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark');
+        toggleBtn.innerHTML = 'Light Mode';
+    } else {
+        toggleBtn.innerHTML = 'Dark Mode';
+    }
+
+    // Sự kiện click để đổi theme
+    toggleBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        toggleBtn.innerHTML = isDark ? 'Light Mode' : 'Dark Mode';
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
 });

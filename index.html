@@ -6,22 +6,36 @@
     <title>Weather App</title>
     <script src="js/all.min.js"></script>
     <script src="js/moment.js"></script>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+        }
+    </script>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
+
+
+
+
     <div class="container">
         <div class="main-section">
             <div class="search-bar">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" name="search-city" id="search-input" placeholder="Tìm kiếm thành phố...">
+                <span class="microphone">
+                    <i class="fas fa-microphone"></i>
+                    <span class="recording-icon"></span>
+                </span>
+                
             </div>
             <div class="info-wrapper">
                 <p class="city-name">--</p>
                 <p class="weather-state">--</p>
                 <img src="http://openweathermap.org/img/wn/10d@2x.png" alt="weather icon" class="weather-icon">
-                <p class="temperature">00</p>
+                <p class="temperature">--</p>
             </div>
         </div>
         <div class="additional-section">
@@ -47,6 +61,9 @@
             </div>
         </div>
     </div>
+
+
+
     <button class="toggle-dark">Dark Mode</button>
     <script src="js/index.js"></script>
 </body>
